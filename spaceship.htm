@@ -185,6 +185,9 @@
       var background;
       var spaceship;
       var shootSample;
+      var tabMonstres = [];
+
+      let SPAWN_RATE = 0.01;
       
       function drawScene() {
 	  // initialisation du viewport
@@ -200,15 +203,47 @@
 
 	  // dessin du vaisseau
 	  gl.useProgram(spaceship.shader());
-          spaceship.sendUniformVariables();
+     spaceship.sendUniformVariables();
 	  spaceship.draw();
 
 	  // test pour afficher un splat quand on appuie sur espace 
 	  gl.enable(gl.BLEND); // transparence activée 
 	  gl.useProgram(shootSample.shader());
-          shootSample.sendUniformVariables();
+	  shootSample.sendUniformVariables();
 	  shootSample.draw();
-	  gl.disable(gl.BLEND); // transparence désactivée 
+
+	  tabMonstres.forEach(function(ennemi){
+          gl.useProgram(ennemi.shader());
+          ennemi.sendUniformVariables();
+          ennemi.draw();
+      });
+
+	  if(shootSample.position[1]){
+            tabMonstres.forEach(function (ennemi) {
+                if (ennemi.position[0] < shootSample.position[0] + shootSample.width
+                    && ennemi.position[0] + ennemi.width > shootSample.position[0]
+                    && ennemi.position[1] < shootSample.position[1] + shootSample.width
+                    && ennemi.position[1] + ennemi.width > shootSample.position[1]){
+                    ennemi.clear();
+                    shootSample.clear();
+                    // exemple: comment positionner un splat devant le vaisseau
+                    var p = spaceship.getBBox(); // boite englobante du vaisseau sur l'écran
+                    var x = (p[0][0]+p[1][0])/2;
+                    var y = p[1][1];
+                    var z = p[1][2]+0.005; // profondeur du splat (juste derrière le vaisseau)
+
+                    shootSample.setPosition(x,y,z);
+                    var textExplosion = initTexture('textures/explosion.png');
+
+                    var explosion = new Splat(textExplosion,0);
+
+                    explosion.setPosition(ennemi.position[0], ennemi.position[1], ennemi.position[2]);
+
+                }
+            });
+      }
+
+	  gl.disable(gl.BLEND); // transparence désactivée
       }
 
       // une bonne maniere de gerer les evenements claviers
@@ -266,6 +301,10 @@
           //var newx = 2.0*(event.clientX/gl.viewportWidth)-1.0;
           //var newy = -(2.0*(event.clientY/gl.viewportHeight)-1.0);
       }
+      function floatAleatoire()
+      {
+          return (Math.random() * 2) - 1;
+      }
 
 
       // animation 
@@ -282,14 +321,43 @@
 	      shootSample.setParameters(elapsed);
 
           }
+          tabMonstres.forEach(function(ennemi){
+              if(ennemi.position[1] < -1){
+                ennemi.clear();
+              }else{
+                  ennemi.setParameters(0);
+              }
+
+          });
           lastTime = timeNow;
+      }
+
+      function genererEnnemis() {
+          if (Math.random() <= SPAWN_RATE) {
+              var textMonstre = initTexture('textures/monstre.png');
+
+              var monstre = new Splat(textMonstre,0.002);
+
+
+
+              let x = (Math.random() * (1 + 1 + 1) ) - 1;    //Position de l'ennemi aléatoire sur x
+              let y = 1.1;    //Haut de l'écran
+              var p = spaceship.getBBox();
+              var z = p[1][2]+0.005;  //Légèrement plus haut que le vaisseau comme les missiles (ctrl-c, ctrl-v toi même tu sais)
+
+              monstre.setPosition(x, y, z);
+              tabMonstres.push(monstre);  //Ajout de l'ennemi au tableau des ennemis
+          }
+
       }
 
       function tick() {
           requestAnimFrame(tick);
+          genererEnnemis();
           handleKeys();
           drawScene();
           animate();
+
       }
 
 
@@ -308,7 +376,7 @@
           //heightfield = new Heightfield();
           background = new Background();
           spaceship = new Model('models/plane.obj');
-	  shootSample = new Splat(tex);
+          shootSample = new Splat(tex,0.10);
 	  
           // la couleur de fond sera grise foncée
           gl.clearColor(0.7, 0.1, 0.3, 1.0);
