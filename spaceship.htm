@@ -212,32 +212,54 @@
 	  shootSample.sendUniformVariables();
 	  shootSample.draw();
 
+	  // dessine tous les monstres
 	  tabMonstres.forEach(function(ennemi){
           gl.useProgram(ennemi.shader());
           ennemi.sendUniformVariables();
           ennemi.draw();
       });
 
+	  // on vérifie si le missile existe
 	  if(shootSample.position[1]){
+	      // on parcourt tous les ennemis
             tabMonstres.forEach(function (ennemi) {
+                // vérification collision
                 if (ennemi.position[0] < shootSample.position[0] + shootSample.width
                     && ennemi.position[0] + ennemi.width > shootSample.position[0]
                     && ennemi.position[1] < shootSample.position[1] + shootSample.width
                     && ennemi.position[1] + ennemi.width > shootSample.position[1]){
+                    var pos = tabMonstres.indexOf(ennemi);
                     ennemi.clear();
+                    tabMonstres.splice(pos,1);
+
+
+                    // ne marche pas :(
+                    /*
                     // exemple: comment positionner un splat devant le vaisseau
-                    /*var p = spaceship.getBBox(); // boite englobante du vaisseau sur l'écran
-                    var x = (p[0][0]+p[1][0])/2;
-                    var y = p[1][1];
-                    var z = p[1][2]+0.005; // profondeur du splat (juste derrière le vaisseau)
-                    shootSample.setPosition(x,y,z);
-                    shootSample.setParameters(0.01);*/
-                   /* var textExplosion = initTexture('textures/explosion.png');
-                    var explosion = new Splat(textExplosion,0);
+                    var p1 = spaceship.getBBox(); // boite englobante du vaisseau sur l'écran
+                    var x1 = (p1[0][0]+p1[1][0])/2;
+                    var y1 = p1[1][1];
+                    var z1 = p1[1][2]+0.005; // profondeur du splat (juste derrière le vaisseau)
+                    shootSample.setPosition(x1,y1,z1);
+                    shootSample.setParameters(0.30,0);
+                    shootSample.disable();
+                    // ne marche pas je ne comprends pas pourquoi
+                    var textExplosion = initTexture('textures/explosion.png');
+                    var explosion = new Splat(textExplosion,0.002);
+
+
+
+                    let x = ennemi.position[0];    //Position de l'ennemi aléatoire sur x
+                    let y = ennemi.position[1];    //Haut de l'écran
+                    var p = spaceship.getBBox();
+                    var z = p[1][2]+0.005;  //Légèrement plus haut que le vaisseau comme les missiles (ctrl-c, ctrl-v toi même tu sais)
+
+                    explosion.setPosition(x, y, z);
                     gl.useProgram(explosion.shader());
                     explosion.sendUniformVariables();
-                    explosion.setPosition(ennemi.position[0], ennemi.position[1], ennemi.position[2]);
                     explosion.draw();*/
+
+
 
                 }
             });
@@ -292,6 +314,7 @@
 	      var z = p[1][2]+0.005; // profondeur du splat (juste derrière le vaisseau)
 
 	      shootSample.setPosition(x,y,z);
+	     //shootSample.setPosition(0,0.02);
           }
 	  
       }
@@ -318,13 +341,18 @@
               var elapsed = timeNow - lastTime;
               spaceship.setParameters(elapsed);
               background.setParameters(elapsed);
-              shootSample.setParameters(elapsed);
+              shootSample.setParameters(elapsed,0.10);
 
           }
+          // animation des monstres
           tabMonstres.forEach(function(ennemi){
+              // si sorti de l'écran on le dépop
               if(ennemi.position[1] < -1){
                 ennemi.clear();
+                var pos = tabMonstres.indexOf(ennemi);
+                tabMonstres.splice(pos,1);
               }else{
+                  // sinon on l'anime
                   ennemi.setParameters(0);
               }
 
