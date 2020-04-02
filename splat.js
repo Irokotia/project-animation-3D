@@ -96,13 +96,14 @@ Splat.prototype.setPosition = function(x,y,z) {
 Splat.prototype.setParameters = function(elapsed) {
     this.time += 0.01*elapsed;
     // on peut animer les splats ici. Par exemple :
+
     if(this.time != 0){
         this.position[1] += this.speed; // permet de déplacer le splat vers le haut au fil du temps
     }else{
-        this.position[1] -= this.speed; // permet de déplacer le splat vers le haut au fil du temps
+        this.position[1] -= this.speed; // permet de faire défiler les montres vers le bas
     }
 
-    this.position[0] += 0.02*Math.sin(this.time); // permet de déplacer le splat sur l'axe X
+    //this.position[0] += 0.02*Math.sin(this.time); // permet de déplacer le splat sur l'axe X
 }
 
 Splat.prototype.sendUniformVariables = function() {

@@ -225,19 +225,19 @@
                     && ennemi.position[1] < shootSample.position[1] + shootSample.width
                     && ennemi.position[1] + ennemi.width > shootSample.position[1]){
                     ennemi.clear();
-                    shootSample.clear();
                     // exemple: comment positionner un splat devant le vaisseau
-                    var p = spaceship.getBBox(); // boite englobante du vaisseau sur l'écran
+                    /*var p = spaceship.getBBox(); // boite englobante du vaisseau sur l'écran
                     var x = (p[0][0]+p[1][0])/2;
                     var y = p[1][1];
                     var z = p[1][2]+0.005; // profondeur du splat (juste derrière le vaisseau)
-
                     shootSample.setPosition(x,y,z);
-                    var textExplosion = initTexture('textures/explosion.png');
-
+                    shootSample.setParameters(0.01);*/
+                   /* var textExplosion = initTexture('textures/explosion.png');
                     var explosion = new Splat(textExplosion,0);
-
+                    gl.useProgram(explosion.shader());
+                    explosion.sendUniformVariables();
                     explosion.setPosition(ennemi.position[0], ennemi.position[1], ennemi.position[2]);
+                    explosion.draw();*/
 
                 }
             });
@@ -290,7 +290,7 @@
 	      var x = (p[0][0]+p[1][0])/2;
 	      var y = p[1][1];
 	      var z = p[1][2]+0.005; // profondeur du splat (juste derrière le vaisseau)
-	      
+
 	      shootSample.setPosition(x,y,z);
           }
 	  
@@ -318,7 +318,7 @@
               var elapsed = timeNow - lastTime;
               spaceship.setParameters(elapsed);
               background.setParameters(elapsed);
-	      shootSample.setParameters(elapsed);
+              shootSample.setParameters(elapsed);
 
           }
           tabMonstres.forEach(function(ennemi){
@@ -366,9 +366,9 @@
           var canvas = document.getElementById("SpaceShip");
           initGL(canvas);
 
-	  // test: création d'une texture 
+	  // test: création d'une texture
 	  var tex = initTexture('textures/missile.png');
-	  
+
           initBackgroundShader();
           initModelShader();
 	  initSplatShader();
